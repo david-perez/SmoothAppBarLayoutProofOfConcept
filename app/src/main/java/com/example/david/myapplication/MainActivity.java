@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
-    private static class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
+    private static class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private List<String> data;
 
         public MyAdapter(List<String> data) {
@@ -46,30 +46,50 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View row = LayoutInflater.from(parent.getContext()).inflate(R.layout.item, parent, false);
-            return new ViewHolder(row);
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            if (viewType == 0) {
+                return new HeaderHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.header_item, parent, false));
+            } else {
+                return new ItemViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item, parent, false));
+            }
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
-            String item = data.get(position);
-            holder.txtvItem.setText(item);
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+            if (holder instanceof ItemViewHolder) {
+                ((ItemViewHolder) holder).txtvItem.setText(getData(position));
+            }
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return position == 0 ? 0 : 1;
         }
 
         @Override
         public int getItemCount() {
-            return data.size();
+            return data.size() + 1;
         }
 
-        class ViewHolder extends RecyclerView.ViewHolder {
+        private String getData(int position) {
+            return position > 0 && position < getItemCount() ? data.get(position - 1) : null;
+        }
+
+        static class ItemViewHolder extends RecyclerView.ViewHolder {
             private View row;
             private TextView txtvItem;
 
-            ViewHolder(View row) {
+            ItemViewHolder(View row) {
                 super(row);
                 this.row = row;
                 txtvItem = (TextView) row.findViewById(R.id.txtv_item);
+            }
+        }
+
+        static class HeaderHolder extends RecyclerView.ViewHolder {
+
+            public HeaderHolder(View itemView) {
+                super(itemView);
             }
         }
     }
